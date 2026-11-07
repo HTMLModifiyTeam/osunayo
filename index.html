@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+    <title>A game about reading the room</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">{"imports":{"three":"https://threejs.org/build/three.module.js"}}</script>
+  </head>
+
+  <body>
+    <canvas id="c"></canvas>
+    <div id="dark"></div>
+    <div id="flash"></div>
+    <div id="hud" hidden>
+      <div id="hudTitle"></div>
+      <div id="hudCnt"></div>
+    </div>
+    <div id="bubM" class="bub" hidden></div>
+    <div id="bubP" class="bub me" hidden></div>
+    <div id="bubG" class="bub gaya" hidden></div>
+    <div id="telop" hidden><span></span></div>
+    <div id="wipe" hidden></div>
+    <div id="big" hidden></div>
+    <button id="skipBtn" hidden></button>
+    <div id="btnArea" hidden><button id="gayaBtn"></button><button id="noBtn"></button><button id="pushBtn"></button>
+    </div>
+
+    <div id="title" class="panel">
+      <div class="card">
+        <h1 id="tTitle"></h1>
+        <p class="how" id="tHow"></p>
+        <button class="btn main" id="startBtn"></button>
+        <div class="cntHead" id="tCntHead"></div>
+      </div>
+    </div>
+
+    <div id="result" class="panel" hidden>
+      <div class="card">
+        <div id="rHead"></div>
+        <div id="rTitle"></div>
+        <div id="rLine"></div>
+        <div id="rUp" hidden></div>
+        <button class="btn main" id="againBtn"></button>
+        <div class="row"><button class="btn" id="topBtn"></button></div>
+      </div>
+    </div>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
