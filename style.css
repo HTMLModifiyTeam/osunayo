@@ -1,576 +1,554 @@
 :root {
-    --ink: #1d1d1d;
-    --red: #e8352a;
-    --blue: #2a6ad8;
-    --yel: #ffd23a;
-    --card: #fffdf6
+  --ink: #1d1d1d;
+  --red: #e8352a;
+  --blue: #2a6ad8;
+  --yel: #ffd23a;
+  --card: #fffdf6
 }
 
 [hidden] {
-    display: none !important
+  display: none !important
 }
 
 * {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent
 }
 
-html,body {
-    height: 100%;
-    margin: 0;
-    background: #2a1a4a;
-    color: var(--ink);
-    font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", system-ui, sans-serif;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    overscroll-behavior: none;
-    touch-action: none
+html, body {
+  height: 100%;
+  margin: 0;
+  background: #2a1a4a;
+  color: var(--ink);
+  font-family: "Hiragino Maru Gothic ProN", "Rounded Mplus 1c", system-ui, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  overscroll-behavior: none;
+  touch-action: none
 }
 
 #c {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block
 }
 
 #dark {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 2;
-    transition: opacity .5s
+  position: fixed;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity .5s
 }
 
 #hud {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    padding: calc(env(safe-area-inset-top, 0px) + 6px) 0 16px;
-    text-align: center;
-    z-index: 4;
-    pointer-events: none;
-    background: linear-gradient(#000c, #0007 65%, #0000)
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 6px) 0 16px;
+  text-align: center;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(#000c, #0007 65%, #0000)
 }
 
 #hudTitle {
-    font-size: 13px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 1px 2px #000a
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px #000a
 }
 
 #hudCnt {
-    display: inline-block;
-    margin-top: 4px;
-    font-size: 17px;
-    font-weight: 900;
-    color: #fff;
-    background: #000a;
-    border-radius: 99px;
-    padding: 3px 14px;
-    font-variant-numeric: tabular-nums
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+  background: #000a;
+  border-radius: 99px;
+  padding: 3px 14px;
+  font-variant-numeric: tabular-nums
 }
 #hudCnt.pop {
-    animation: pop .4s ease-out
+  animation: pop .4s ease-out
 }
 
 .bub {
-    position: fixed;
-    z-index: 5;
-    pointer-events: none;
-    transform: translate(-50%, -100%);
-    background: #fff;
-    border: 3px solid #1d1d1d;
-    border-radius: 16px;
-    padding: 6px 14px;
-    font-weight: 900;
-    font-size: 19px;
-    white-space: nowrap;
-    box-shadow: 0 3px 0 #0003;
-    max-width: 92vw;
-    overflow: hidden;
-    text-overflow: ellipsis
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  background: #fff;
+  border: 3px solid #1d1d1d;
+  border-radius: 16px;
+  padding: 6px 14px;
+  font-weight: 900;
+  font-size: 19px;
+  white-space: nowrap;
+  box-shadow: 0 3px 0 #0003;
+  max-width: 92vw;
+  overflow: hidden;
+  text-overflow: ellipsis
 }
 .bub:after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -12px;
-    margin-left: -8px;
-    border: 8px solid transparent;
-    border-top-color: #1d1d1d
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  margin-left: -8px;
+  border: 8px solid transparent;
+  border-top-color: #1d1d1d
 }
 .bub.me {
-    background: #dff0ff
+  background: #dff0ff
 }
 .bub.angry {
-    background: #ffe0dc;
-    color: #b01c12
+  background: #ffe0dc;
+  color: #b01c12
 }
 .bub.pop {
-    animation: bpop .3s ease-out
+  animation: bpop .3s ease-out
 }
 
 @keyframes bpop {
-    0% {transform: translate(-50%, -100%) scale(.4)}
-    70% {transform: translate(-50%, -100%) scale(1.08)}
-    100% {transform: translate(-50%, -100%) scale(1)}
+  0% { transform: translate(-50%, -100%) scale(.4) }
+  70% { transform: translate(-50%, -100%) scale(1.08) }
+  100% { transform: translate(-50%, -100%) scale(1) }
 }
 
 #big {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 226px);
-    white-space: nowrap;
-    text-align: center;
-    font-size: 58px;
-    font-weight: 900;
-    color: #ffd23a;
-    text-shadow: 0 4px 0 #a0400a, 0 0 18px #000a;
-    z-index: 7;
-    pointer-events: none;
-    line-height: 1.1;
-    padding: 0 10px
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 226px);
+  white-space: nowrap;
+  text-align: center;
+  font-size: 58px;
+  font-weight: 900;
+  color: #ffd23a;
+  text-shadow: 0 4px 0 #a0400a, 0 0 18px #000a;
+  z-index: 7;
+  pointer-events: none;
+  line-height: 1.1;
+  padding: 0 10px
 }
 
 #big.pop {
-    animation: pop .5s ease-out
+  animation: pop .5s ease-out
 }
 
 @keyframes pop {
-    0% {
-        transform: scale(1.7);
-        opacity: 0
-    }
+  0% { transform: scale(1.7); opacity: 0 }
 
-    60% {
-        transform: scale(.94);
-        opacity: 1
-    }
+  60% { transform: scale(.94); opacity: 1 }
 
-    100% {
-        transform: scale(1)
-    }
+  100% { transform: scale(1) }
 }
 
 #skipBtn {
-    position: fixed;
-    right: calc(env(safe-area-inset-right, 0px) + 12px);
-    top: calc(env(safe-area-inset-top, 0px) + 76px);
-    z-index: 8;
-    border: 3px solid #1d1d1d;
-    border-radius: 99px;
-    background: #fff;
-    font: 900 14px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
-    padding: 7px 14px;
-    box-shadow: 0 3px 0 #0004;
-    color: #1d1d1d
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 12px);
+  top: calc(env(safe-area-inset-top, 0px) + 76px);
+  z-index: 8;
+  border: 3px solid #1d1d1d;
+  border-radius: 99px;
+  background: #fff;
+  font: 900 14px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  padding: 7px 14px;
+  box-shadow: 0 3px 0 #0004;
+  color: #1d1d1d
 }
 
 #btnArea {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
-    height: 96px;
-    z-index: 6;
-    pointer-events: none
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 34px);
+  height: 96px;
+  z-index: 6;
+  pointer-events: none
 }
 
 #btnArea button {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: 136px;
-    height: 88px;
-    margin-left: -68px;
-    border: 4px solid #1d1d1d;
-    border-radius: 22px;
-    font: 900 30px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
-    color: #fff;
-    box-shadow: 0 6px 0 #1d1d1d;
-    pointer-events: auto;
-    touch-action: none;
-    padding: 0
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 136px;
+  height: 88px;
+  margin-left: -68px;
+  border: 4px solid #1d1d1d;
+  border-radius: 22px;
+  font: 900 30px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  color: #fff;
+  box-shadow: 0 6px 0 #1d1d1d;
+  pointer-events: auto;
+  touch-action: none;
+  padding: 0
+}
+
+#fightBtn {
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 42px);
+  z-index: 7;
+  min-width: 116px;
+  height: 62px;
+  border: 4px solid #173d25;
+  border-radius: 18px;
+  background: #20a84a;
+  color: white;
+  font: 900 22px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  text-shadow: 0 2px 0 #0005;
+  box-shadow: 0 5px 0 #15502c;
+  touch-action: manipulation;
+}
+#fightBtn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #15502c;
 }
 
 #pushBtn {
-    background: var(--red);
-    z-index: 2;
-    text-shadow: 0 2px 0 #0005
+  background: var(--red);
+  z-index: 2;
+  text-shadow: 0 2px 0 #0005
 }
 
-#pushBtn:active,
-#pushBtn.down {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #1d1d1d
+#pushBtn:active, #pushBtn.down {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1d1d1d
 }
 
 #pushBtn.jig {
-    animation: jig .7s ease-in-out
+  animation: jig .7s ease-in-out
 }
 
 @keyframes jig {
-    0%,
-    100% { margin-left: -68px }
-    20% { margin-left: -62px }
-    40% { margin-left: -73px }
-    60% { margin-left: -64px }
-    80% { margin-left: -70px }
+  0%,
+  100% { margin-left: -68px }
+  20% { margin-left: -62px }
+  40% { margin-left: -73px }
+  60% { margin-left: -64px }
+  80% { margin-left: -70px }
 }
 
 #pushBtn.gone {
-    opacity: 0;
-    transition: opacity .25s;
-    pointer-events: none
+  opacity: 0;
+  transition: opacity .25s;
+  pointer-events: none
 }
 
 #noBtn {
-    background: var(--blue);
-    z-index: 1;
-    font-size: 24px !important;
-    text-shadow: 0 2px 0 #0005
+  background: var(--blue);
+  z-index: 1;
+  font-size: 24px !important;
+  text-shadow: 0 2px 0 #0005
 }
 
 #noBtn:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #1d1d1d
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1d1d1d
 }
 
 #noBtn.morph {
-    background: var(--red);
-    transition: background .25s
+  background: var(--red);
+  transition: background .25s
 }
 
 #btnArea.off button {
-    filter: saturate(.5) brightness(.85)
+  filter: saturate(.5) brightness(.85)
 }
 
 .panel {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
-    overflow: auto;
-    touch-action: pan-y
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  overflow: auto;
+  touch-action: pan-y
 }
 
 .card {
-    width: 100%;
-    max-width: 400px;
-    background: var(--card);
-    border: 4px solid #1d1d1d;
-    border-radius: 22px;
-    padding: 18px 16px;
-    box-shadow: 0 6px 0 #0006;
-    text-align: center;
-    margin: auto
+  width: 100%;
+  max-width: 400px;
+  background: var(--card);
+  border: 4px solid #1d1d1d;
+  border-radius: 22px;
+  padding: 18px 16px;
+  box-shadow: 0 6px 0 #0006;
+  text-align: center;
+  margin: auto
 }
 
 #title {
-    background: linear-gradient(#0000 40%, #2a1a4acc)
+  background: linear-gradient(#0000 40%, #2a1a4acc)
 }
 
 #title h1 {
-    margin: 0 0 6px;
-    font-size: clamp(30px, 10vw, 44px);
-    line-height: 1;
-    color: var(--red);
-    text-shadow: 3px 3px 0 #1d1d1d;
-    -webkit-text-stroke: 1px #1d1d1d
+  margin: 0 0 6px;
+  font-size: clamp(30px, 10vw, 44px);
+  line-height: 1;
+  color: var(--red);
+  text-shadow: 3px 3px 0 #1d1d1d;
+  -webkit-text-stroke: 1px #1d1d1d
 }
 
 #title h1 small {
-    display: block;
-    font-size: 16px;
-    color: #1d1d1d;
-    text-shadow: none;
-    -webkit-text-stroke: 0;
-    margin-top: 8px
+  display: block;
+  font-size: 16px;
+  color: #1d1d1d;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+  margin-top: 8px
 }
 
 .how {
-    font-size: 15px;
-    line-height: 1.65;
-    margin: 10px 0 14px
+  font-size: 15px;
+  line-height: 1.65;
+  margin: 10px 0 14px
 }
 
 .btn {
-    display: block;
-    width: 100%;
-    border: 3px solid #1d1d1d;
-    border-radius: 14px;
-    background: #fff;
-    font: 900 18px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
-    padding: 12px;
-    margin: 8px 0;
-    box-shadow: 0 4px 0 #1d1d1d;
-    color: #1d1d1d
+  display: block;
+  width: 100%;
+  border: 3px solid #1d1d1d;
+  border-radius: 14px;
+  background: #fff;
+  font: 900 18px "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  padding: 12px;
+  margin: 8px 0;
+  box-shadow: 0 4px 0 #1d1d1d;
+  color: #1d1d1d
 }
 
 .btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 #1d1d1d
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #1d1d1d
 }
 
 .btn.main {
-    background: var(--red);
-    color: #fff;
-    font-size: 22px
-}
-
-.btn.x {
-    background: #111;
-    color: #fff
+  background: var(--red);
+  color: #fff;
+  font-size: 22px
 }
 
 .row {
-    display: flex;
-    gap: 8px
+  display: flex;
+  gap: 8px
 }
 
 .row .btn {
-    flex: 1
-}
-
-#langs {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-top: 12px;
-    flex-wrap: wrap
-}
-
-#langs button {
-    border: 2px solid #1d1d1d;
-    border-radius: 99px;
-    background: #fff;
-    font: 700 13px system-ui, sans-serif;
-    padding: 4px 10px;
-    color: #1d1d1d
-}
-
-#langs button.on {
-    background: #1d1d1d;
-    color: #fff
-}
-
-.home {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 12px;
-    color: #666
+  flex: 1
 }
 
 .cnt {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 8px 0 4px;
-    font-size: 14px
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 4px;
+  font-size: 14px
 }
 
 .cnt td {
-    padding: 4px 4px;
-    border-bottom: 2px dashed #ddd;
-    text-align: left
+  padding: 4px 4px;
+  border-bottom: 2px dashed #ddd;
+  text-align: left
 }
 
 .cnt td.r {
-    width: 26px;
-    font-weight: 900;
-    text-align: center
+  width: 26px;
+  font-weight: 900;
+  text-align: center
 }
 
 .cnt td.c {
-    text-align: right;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap
+  text-align: right;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap
 }
 
 .cnt tr.mine td {
-    background: #fff2b8
+  background: #fff2b8
 }
 
 .cnt tr.g0 td.r {
-    color: #d49a00
+  color: #d49a00
 }
 
 .cnt tr.g3 td.n {
-    color: #888
+  color: #888
 }
 
 .cntHead {
-    font-weight: 900;
-    font-size: 13px;
-    color: #666;
-    margin-top: 10px
+  font-weight: 900;
+  font-size: 13px;
+  color: #666;
+  margin-top: 10px
 }
 
 .note {
-    font-size: 13px;
-    color: #666;
-    min-height: 1.2em;
-    margin: 4px 0
+  font-size: 13px;
+  color: #666;
+  min-height: 1.2em;
+  margin: 4px 0
 }
 
 #rHead {
-    font-size: 16px;
-    font-weight: 900;
-    color: #666
+  font-size: 16px;
+  font-weight: 900;
+  color: #666
 }
 
 #rTitle {
-    font-size: 34px;
-    font-weight: 900;
-    margin: 6px 0;
-    line-height: 1.2
+  font-size: 34px;
+  font-weight: 900;
+  margin: 6px 0;
+  line-height: 1.2
 }
 
 #rTitle small {
-    display: block;
-    font-size: 13px;
-    color: #666
+  display: block;
+  font-size: 13px;
+  color: #666
 }
 
 #rTitle.g0 {
-    color: #d49a00
+  color: #d49a00
 }
 
 #rTitle.g1 {
-    color: #1f8a4c
+  color: #1f8a4c
 }
 
 #rTitle.g2 {
-    color: var(--red)
+  color: var(--red)
 }
 
 #rTitle.g3 {
-    color: #555
+  color: #555
 }
 
 #rTitle.g4 {
-    color: #7a1a1a
+  color: #7a1a1a
 }
 
 #rLine {
-    font-size: 15px;
-    font-weight: 700;
-    margin-bottom: 6px
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px
 }
 
 #rUp {
-    color: #d8352a;
-    font-weight: 900;
-    font-size: 14px
+  color: #d8352a;
+  font-weight: 900;
+  font-size: 14px
 }
 
 #telop {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 158px);
-    text-align: center;
-    z-index: 7;
-    pointer-events: none;
-    padding: 0 14px;
-    line-height: 1.15
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 158px);
+  text-align: center;
+  z-index: 7;
+  pointer-events: none;
+  padding: 0 14px;
+  line-height: 1.15
 }
 #telop span {
-    display: inline-block;
-    font-weight: 900;
-    font-size: 40px;
-    white-space: nowrap;
-    color: #fff23a;
-    transform: rotate(-3deg);
-    text-shadow: -3px -3px 0 #c8102e, 3px -3px 0 #c8102e, -3px 3px 0 #c8102e, 3px 3px 0 #c8102e, 0 -4px 0 #c8102e, 0 4px 0 #c8102e, -4px 0 0 #c8102e, 4px 0 0 #c8102e, 0 8px 0 #1d1d1d
+  display: inline-block;
+  font-weight: 900;
+  font-size: 40px;
+  white-space: nowrap;
+  color: #fff23a;
+  transform: rotate(-3deg);
+  text-shadow: -3px -3px 0 #c8102e, 3px -3px 0 #c8102e, -3px 3px 0 #c8102e, 3px 3px 0 #c8102e, 0 -4px 0 #c8102e, 0 4px 0 #c8102e, -4px 0 0 #c8102e, 4px 0 0 #c8102e, 0 8px 0 #1d1d1d
 }
 
 #telop.pop span {
-    animation: tpop .38s cubic-bezier(.2, 1.7, .4, 1)
+  animation: tpop .38s cubic-bezier(.2, 1.7, .4, 1)
 }
 
 @keyframes tpop {
-    0% {
-        transform: scale(.25) rotate(-12deg);
-        opacity: 0
-    }
+  0% {
+    transform: scale(.25) rotate(-12deg);
+    opacity: 0
+  }
 
-    100% {
-        transform: scale(1) rotate(-3deg);
-        opacity: 1
-    }
+  100% {
+    transform: scale(1) rotate(-3deg);
+    opacity: 1
+  }
 }
 
 #wipe {
-    position: fixed;
-    right: calc(env(safe-area-inset-right, 0px) + 10px);
-    top: calc(env(safe-area-inset-top, 0px) + 100px);
-    width: 34vw;
-    max-width: 190px;
-    aspect-ratio: 4/3;
-    border: 4px solid #fff;
-    box-shadow: 0 3px 10px #0008;
-    z-index: 5;
-    pointer-events: none;
-    border-radius: 4px
+  position: fixed;
+  right: calc(env(safe-area-inset-right, 0px) + 10px);
+  top: calc(env(safe-area-inset-top, 0px) + 100px);
+  width: 34vw;
+  max-width: 190px;
+  aspect-ratio: 4/3;
+  border: 4px solid #fff;
+  box-shadow: 0 3px 10px #0008;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 4px
 }
 
 .bub.gaya {
-    font-size: 17px;
-    padding: 4px 10px;
-    background: #fff6c8
+  font-size: 17px;
+  padding: 4px 10px;
+  background: #fff6c8
 }
 
 @media (min-aspect-ratio:1/1) {
-    #wipe {
-        right: auto;
-        left: calc(env(safe-area-inset-left, 0px) + 10px)
-    }
+  #wipe {
+    right: auto;
+    left: calc(env(safe-area-inset-left, 0px) + 10px)
+  }
 }
 
 #flash {
-    position: fixed;
-    inset: 0;
-    background: #fff;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 2
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2
 }
 
 #gayaBtn {
-    background: #ffc21a;
-    color: #1d1d1d !important;
-    font-size: 19px !important;
-    line-height: 1.2;
-    z-index: 0
+  background: #ffc21a;
+  color: #1d1d1d !important;
+  font-size: 19px !important;
+  line-height: 1.2;
+  z-index: 0
 }
 #gayaBtn:active {
-    transform: translateY(4px);
-    box-shadow: 0 2px 0 #1d1d1d
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #1d1d1d
 }
 
 .cnt tr.t0 td.r {
-    color: #d49a00
+  color: #d49a00
 }
 .cnt tr.t3 td.n {
-    color: #888
+  color: #888
 }
 .cnt tr.t4 td.n {
-    color: #7a1a1a
+  color: #7a1a1a
 }
 .cnt tr.hid td.n {
-    color: #aaa;
-    letter-spacing: .15em
+  color: #aaa;
+  letter-spacing: .15em
 }
