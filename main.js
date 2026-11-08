@@ -1,16 +1,11 @@
 import * as THREE from 'three';
-import { TX, TX2, KT, TIER, D, DEC, TUB, SHIRT, PANTS, HAIR, SKIN } from './classes/data.js';
+import { TX, KT, TIER, D, DEC, TUB, SHIRT, PANTS, HAIR, SKIN } from './classes/data.js';
 import { poseFight } from './classes/fight.js';
 import { clamp, lerp, smoothstep, phase, envelope, RND, randomRange, pick, overlapArea } from './utils/math.js';
 import { SafeStorage } from './utils/SafeStorage.js';
 const $ = id => document.getElementById(id);
 
 const ls = new SafeStorage({ prefix: "osn:" });
-const a = TX, b = TX2;
-Object.assign(TX.kanpe, TX2.kanpe);
-Object.assign(TX.gaya, TX2.gaya);
-
-for (const k in b) if (k !== 'kanpe' && k !== 'gaya') a[k] = b[k];
 function translate(key, params) {
   let text = TX[key];
   if (params) for (const [name, value] of Object.entries(params)) text = String(text).split('{' + name + '}').join(value);
@@ -1340,6 +1335,8 @@ function flail(m, u, s) {
 }
 
 function hotDance(m, u, x, z, yaw) {
+  const per = .45;
+  const p = (u % per) / per;
   m.g.position.set(x, .05 + HIP + Math.sin(p * Math.PI) * .42, z);
   m.g.rotation.y = yaw + Math.sin(u * 5.5) * .7;
   m.aL.rotation.z = 2.3 + Math.sin(u * 17) * .5;
@@ -1804,8 +1801,7 @@ function scene(s, t, T) {
   } else if (ty === 'out') {
     const ga = translate('gaya')[k] || [];
     if (k === 'early' || k === 'clear' || k === 'late' || k === 'fly' || k === 'fui' || (k === 'yari' && t < .6)) {
-      const kk = k === 'yari' ? 'clear' : k,
-        g2 = translate('gaya')[kk] || [];
+      const kk = k === 'yari' ? 'clear' : k, g2 = translate('gaya')[kk] || [];
       if (kk === 'fly') {
         if (t < 1.0) o.tel = translate('tel_fly1');
         else if (t < 2.3) o.tel = translate('tel_fly2');
@@ -1883,7 +1879,7 @@ function scene(s, t, T) {
       else if (t >= 3.0) o.tel = translate('tel_bored2');
       o.kp = t > 1.6 ? 'bored' : 'wrap';
       if (t > 2.2 && t < 3.4) o.bg = [0, ga[0]];
-    }
+    } else if (k === 'fight' && t < 1.0) o.tel = translate('tel_fight');
   }
   if (o.bg && !o.bg[1]) o.bg = null;
   {
@@ -2802,8 +2798,8 @@ function doGaya() {
 function doFight() {
   if (mode !== 'play' || !G || G.seg.type === 'fight') return;
   SFX.angry();
-  G.kind = 'fight';
-  G.seg = { type: 'fight', say: G.say };
+  G.kind = 'fight'
+  G.seg = {kind: 'fight', type: 'fight', say: G.say };
   G.t = 0;
   $('fightBtn').hidden = true;
   $('btnArea').hidden = true;
