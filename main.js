@@ -1,27 +1,32 @@
 import * as THREE from 'three';
 import { TX, KT, TIER, D, DEC, TUB, SHIRT, PANTS, HAIR, SKIN } from './classes/data.js';
 import { poseFight } from './classes/fight.js';
-import { clamp, lerp, smoothstep, phase, envelope, RND, randomRange, pick, overlapArea } from './utils/math.js';
-import { SafeStorage } from './utils/SafeStorage.js';
+import { smoothstep, phase, envelope, RND, randomRange, pick, overlapArea } from './utils/math.js';
+import SafeStorage from './utils/SafeStorage.js';
 const $ = id => document.getElementById(id);
 
-const ls = new SafeStorage({ prefix: "osn:" });
+const store = new SafeStorage("osn");
 function translate(key, params) {
-  let text = TX[key];
-  if (params) for (const [name, value] of Object.entries(params)) text = String(text).split('{' + name + '}').join(value);
+  let text = key.split('.').reduce((obj, k) => obj?.[k], TX);
+  if (text === undefined) {
+    console.warn(`Missing translation: ${key}`);
+    return key;
+  }
+
+  if (params) for (const [name, value] of Object.entries(params)) text = text.split('{' + name + '}').join(value);
   return text;
-};
+}
 
 let CIV = false;
 const Ln = n => translate(CIV ? 'LC' : 'L')[Math.min(n, 10)] || '';
 const tName = id => (translate('tn') || {})[id] || id;
 
 function resLine(kind, n) {
-  if (kind === 'fight') return translate('line_fight');
-  if (kind === 'fly') return translate('line_fly');
-  if (kind === 'enjo') return n ? translate('line_enjo', { n }) : translate('line_enjo0');
-  if (['both', 'dive', 'bored', 'all', 'kuuki', 'yari', 'fui', 'gaya'].includes(kind)) return translate('line_' + kind, { n });
-  return translate('line_push', { n });
+  if (kind === 'fight') return translate('line.fight');
+  if (kind === 'fly') return translate('line.fly');
+  if (kind === 'enjo') return n ? translate('line.enjo', { n }) : translate('line.enjo0');
+  if (['both', 'dive', 'bored', 'all', 'kuuki', 'yari', 'fui', 'gaya', 'fight'].includes(kind)) return translate(`line.${kind}`, { n });
+  return translate('line.push', { n });
 }
 // ===== 音（その場で作る） =====
 let AC = null, master = null, NB = null;
@@ -836,7 +841,7 @@ function updCrowd(dt, T) {
   for (const k in DEC) mood[k] = Math.max(0, mood[k] - dt * DEC[k]);
   for (let i = 0; i < AUD.length; i++) {
     const p = AUD[i], sv = p.s, w = T + p.ph;
-    const L = clamp(mood.laugh * sv, 0, 1), C = clamp(mood.clap * sv, 0, 1), H = clamp(mood.cheer * sv, 0, 1), K = clamp(mood.shock * sv, 0, 1), S = clamp(mood.sad * sv, 0, 1), O = clamp(mood.ooh * sv, 0, 1);
+    const L = THREE.MathUtils.clamp(mood.laugh * sv, 0, 1), C = THREE.MathUtils.clamp(mood.clap * sv, 0, 1), H = THREE.MathUtils.clamp(mood.cheer * sv, 0, 1), K = THREE.MathUtils.clamp(mood.shock * sv, 0, 1), S = THREE.MathUtils.clamp(mood.sad * sv, 0, 1), O = THREE.MathUtils.clamp(mood.ooh * sv, 0, 1);
     const bob = Math.sin(w * 1.3) * .006 + L * Math.abs(Math.sin(w * 11)) * .035 + H * (.1 + .08 * Math.sin(w * 9));
     const tx = L * (.1 + .15 * Math.sin(w * 4.5)) + K * .28 - S * .3 - O * .18;
     const hx = L * .35 * Math.abs(Math.sin(w * 5)) + K * .25 - S * .45 - O * .1 + H * .2;
@@ -1070,7 +1075,7 @@ function gayaPose(T, skip) {
     stand(m, x, z);
     m.g.rotation.y = yaw;
     const w = T + i * 1.7;
-    const L = clamp(mood.laugh * 1.25, 0, 1), K = clamp(mood.shock * 1.4, 0, 1), C = clamp(Math.max(mood.clap, mood.cheer) * 1.2, 0, 1), S = clamp(mood.sad * 1.2, 0, 1);
+    const L = THREE.MathUtils.clamp(mood.laugh * 1.25, 0, 1), K = THREE.MathUtils.clamp(mood.shock * 1.4, 0, 1), C = THREE.MathUtils.clamp(Math.max(mood.clap, mood.cheer) * 1.2, 0, 1), S = THREE.MathUtils.clamp(mood.sad * 1.2, 0, 1);
     const base = 1 - Math.max(L, K, C, S);
     m.g.position.y -= .12 * base;
     m.spine.rotation.x = -.35 * base;
@@ -1089,19 +1094,19 @@ function gayaPose(T, skip) {
       m.neck.rotation.x += .35 * L;
     }
     if (K > .05) {
-      m.aL.rotation.z = lerp(m.aL.rotation.z, 2.6, K);
-      m.aR.rotation.z = lerp(m.aR.rotation.z, -2.6, K);
+      m.aL.rotation.z = THREE.MathUtils.lerp(m.aL.rotation.z, 2.6, K);
+      m.aR.rotation.z = THREE.MathUtils.lerp(m.aR.rotation.z, -2.6, K);
       m.eL.rotation.z = -1.8 * K;
       m.eR.rotation.z = 1.8 * K;
-      m.spine.rotation.x = lerp(m.spine.rotation.x, .2, K);
+      m.spine.rotation.x = THREE.MathUtils.lerp(m.spine.rotation.x, .2, K);
       m.mouth.scale.set(.05, .05, .012);
     }
     if (C > .05) {
       const cl = Math.abs(Math.sin(w * 12));
-      m.aL.rotation.x = lerp(m.aL.rotation.x, 1.4, C);
-      m.aR.rotation.x = lerp(m.aR.rotation.x, 1.4, C);
-      m.aL.rotation.z = lerp(m.aL.rotation.z, -.3 - .3 * cl, C);
-      m.aR.rotation.z = lerp(m.aR.rotation.z, .3 + .3 * cl, C);
+      m.aL.rotation.x = THREE.MathUtils.lerp(m.aL.rotation.x, 1.4, C);
+      m.aR.rotation.x = THREE.MathUtils.lerp(m.aR.rotation.x, 1.4, C);
+      m.aL.rotation.z = THREE.MathUtils.lerp(m.aL.rotation.z, -.3 - .3 * cl, C);
+      m.aR.rotation.z = THREE.MathUtils.lerp(m.aR.rotation.z, .3 + .3 * cl, C);
       m.g.position.y += Math.abs(Math.sin(w * 7)) * .06 * C;
     }
     if (S > .3) {
@@ -1252,8 +1257,8 @@ function updFx(dt) {
     if (st.life > st.max) {
       st.life = 0;
       st.max = 2.2 + Math.random() * 1.6;
-      st.x = lerp(TUB.x0 + .2, TUB.x1 - .2, Math.random());
-      st.z = lerp(TUB.z0 + .2, TUB.z1 - .2, Math.random());
+      st.x = THREE.MathUtils.lerp(TUB.x0 + .2, TUB.x1 - .2, Math.random());
+      st.z = THREE.MathUtils.lerp(TUB.z0 + .2, TUB.z1 - .2, Math.random());
     }
     const k = st.life / st.max;
     st.s.position.set(st.x + Math.sin(k * 5 + st.max) * .15, TUB.water + k * 1.9, st.z);
@@ -1276,7 +1281,7 @@ function updFx(dt) {
 let VA = 1;
 
 function setCam(p, l, wide) {
-  const k = wide && VA < .85 ? lerp(1.18, 1, clamp((VA - .45) / .4, 0, 1)) : 1;
+  const k = wide && VA < .85 ? THREE.MathUtils.lerp(1.18, 1, THREE.MathUtils.clamp((VA - .45) / .4, 0, 1)) : 1;
   cam.position.copy(l).addScaledVector(p.clone().sub(l), k);
   cam.lookAt(l);
 }
@@ -1284,7 +1289,7 @@ function setCam(p, l, wide) {
 function fitFov(a) {
   VA = a;
   cam.aspect = a;
-  cam.fov = clamp(2 * Math.atan(Math.tan(27 * Math.PI / 180) / a) * 180 / Math.PI, 52, 80);
+  cam.fov = THREE.MathUtils.clamp(2 * Math.atan(Math.tan(27 * Math.PI / 180) / a) * 180 / Math.PI, 52, 80);
   cam.updateProjectionMatrix();
 }
 const FP = [V3(0, 2.85, 2.3), V3(0, 1.45, -1.55)], WIDE = [V3(3.6, 2.35, -.6), V3(0, 1.2, -1.0)];
@@ -1371,8 +1376,8 @@ function fall(m, u, x, landZ, zt, popZ) {
     const q = (1 - k) * (1 - k),
       r = 2 * (1 - k) * k,
       s = k * k;
-    m.g.position.set(lerp(P0.x, x, k), q * P0.y + r * C.y + s * P2.y, q * P0.z + r * C.z + s * P2.z);
-    m.g.rotation.x = -lerp(.75, 1.55, k);
+    m.g.position.set(THREE.MathUtils.lerp(P0.x, x, k), q * P0.y + r * C.y + s * P2.y, q * P0.z + r * C.z + s * P2.z);
+    m.g.rotation.x = -THREE.MathUtils.lerp(.75, 1.55, k);
     flail(m, u, 1.3);
     m.neck.rotation.x = .5;
     m.mouth.scale.set(.05, .04, .012);
@@ -1387,7 +1392,7 @@ function fall(m, u, x, landZ, zt, popZ) {
   }
   if (u < 1.6) {
     const k = smoothstep((u - 1.35) / .25);
-    m.g.position.set(x, lerp(.48, 1.75, k), lerp(landZ, popZ, k));
+    m.g.position.set(x, THREE.MathUtils.lerp(.48, 1.75, k), THREE.MathUtils.lerp(landZ, popZ, k));
     m.g.rotation.x = -1.55 * (1 - k);
     m.aL.rotation.z = 2.6;
     m.aR.rotation.z = -2.6;
@@ -1532,7 +1537,7 @@ function crowdEv(s) {
     }],
     [1.42, () => cue('laugh', .6)]
   ];
-  if (ty !== 'out') return [];
+  if (ty !== 'out' && ty !== 'fight') return [];
   switch (k) {
     case 'early':
       return [
@@ -1657,6 +1662,11 @@ function crowdEv(s) {
         [1.45, () => murSet(.02)],
         [3.6, () => murSet(0)]
       ];
+    case 'fight':
+      return [
+        [.1, () => cue('aah', .9)],
+        [.5, () => cue('aah', .1)],
+      ];
     case 'kuuki':
       return [
         [.4, () => cue('ooh', .6)],
@@ -1678,7 +1688,7 @@ function evList0(s) {
   if (s.type === 'intro') return EV.intro;
   if (s.type === 'line') return EV.line;
   if (s.type === 'pushy') return EV.pushy;
-  if (s.type !== 'out') return [];
+  if (s.type !== 'out' && s.type !== 'fight') return [];
   const k = s.kind;
   if (k === 'early' || k === 'clear' || k === 'late' || k === 'fly' || k === 'fui') return [
     ...EV.fall,
@@ -1774,12 +1784,12 @@ function evList0(s) {
     [.95, () => SFX.talk(6, 1.15)],
     [1.2, () => SFX.fanfare()]
   ];
+  if (k === 'fight') return [[.2, () => SFX.angry()]];
   return EV.bored;
 }
 
 function fireEv(s, t0, t1) {
-  for (const [at, f] of evList(s))
-    if (at > t0 && at <= t1) f(s);
+  for (const [at, f] of evList(s)) if (at > t0 && at <= t1) f(s);
 }
 // o：吹き出しや大きい文字など、画面に重ねるもの
 function scene(s, t, T) {
@@ -1793,67 +1803,67 @@ function scene(s, t, T) {
     if (!CIV && (s.n || 0) >= 7) o.kp = 'wrap';
   } else if (ty === 'pushy') {
     o.kp = 'lol';
-    if (t > .42 && t < 2.4) o.tel = translate('tel_pushy');
+    if (t > .42 && t < 2.4) o.tel = translate('tel.pushy');
     o.wipe = t > .45;
     const ga = translate('gaya').pushy;
     if (t > .5 && t < 1.4) o.bg = [0, ga[0]];
     else if (t > 1.45 && t < 2.5) o.bg = [1, ga[1]];
-  } else if (ty === 'out') {
+  } else if (ty === 'out' || s.type === 'fight') {
     const ga = translate('gaya')[k] || [];
     if (k === 'early' || k === 'clear' || k === 'late' || k === 'fly' || k === 'fui' || (k === 'yari' && t < .6)) {
       const kk = k === 'yari' ? 'clear' : k, g2 = translate('gaya')[kk] || [];
       if (kk === 'fly') {
-        if (t < 1.0) o.tel = translate('tel_fly1');
-        else if (t < 2.3) o.tel = translate('tel_fly2');
-        else if (t > 3.45) o.tel = translate('tel_fly');
+        if (t < 1.0) o.tel = translate('tel.fly1');
+        else if (t < 2.3) o.tel = translate('tel.fly2');
+        else if (t > 3.45) o.tel = translate('tel.fly');
       } else if (kk === 'fui') {
-        if (t < 1.2) o.tel = translate('tel_fui1');
-        else if (t < 2.3) o.tel = translate('tel_hot');
-        else if (t > 3.45) o.tel = translate('tel_fui');
+        if (t < 1.2) o.tel = translate('tel.fui1');
+        else if (t < 2.3) o.tel = translate('tel.hot');
+        else if (t > 3.45) o.tel = translate('tel.fui');
       } else {
-        if (t < 1.0) o.tel = translate('tel_push');
-        else if (t < 2.3) o.tel = translate('tel_hot');
-        else if (t > 3.45) o.tel = translate('tel_' + kk);
+        if (t < 1.0) o.tel = translate('tel.push');
+        else if (t < 2.3) o.tel = translate('tel.hot');
+        else if (t > 3.45) o.tel = translate('tel.' + kk);
       }
       o.wipe = t > 1.1;
       if (t > .15) o.kp = kk === 'fly' ? 'mada' : kk;
       if (t > .35 && t < 1.4) o.bg = [0, g2[0]];
       else if (t > 3.7 && t < 5.2) o.bg = [1, g2[1]];
     } else if (k === 'yari') {
-      if (t < 2.4) o.tel = translate('tel_yari1');
-      else if (t > 3.4) o.tel = translate('tel_yari');
+      if (t < 2.4) o.tel = translate('tel.yari1');
+      else if (t > 3.4) o.tel = translate('tel.yari');
       o.wipe = t > 1.0;
       o.kp = 'yari';
       if (t > 1.0 && t < 2.2) o.bg = [1, ga[0]];
       else if (t > 3.6 && t < 5.0) o.bg = [0, ga[1]];
     } else if (k === 'both') {
-      if (t > .45 && t < 1.3) o.tel = translate('tel_both1');
-      else if (t >= 1.3 && t < 2.7) o.tel = translate('tel_both2');
+      if (t > .45 && t < 1.3) o.tel = translate('tel.both1');
+      else if (t >= 1.3 && t < 2.7) o.tel = translate('tel.both2');
       o.wipe = t > 1.35;
       if (t > .5) o.kp = 'both';
       if (t > 1.0 && t < 2.0) o.bg = [1, ga[0]];
       else if (t > 2.2 && t < 3.4) o.bg = [0, ga[1]];
     } else if (k === 'dive') {
-      if (t > .1 && t < .9) o.tel = translate('tel_dive1');
-      else if (t >= .9 && t < 2.7) o.tel = translate('tel_dive2');
+      if (t > .1 && t < .9) o.tel = translate('tel.dive1');
+      else if (t >= .9 && t < 2.7) o.tel = translate('tel.dive2');
       o.wipe = t > 1.45;
       if (t > 1.4) o.kp = 'dive';
       if (t > 1.6 && t < 2.6) o.bg = [0, ga[0]];
       else if (t > 2.6 && t < 3.4) o.bg = [1, ga[1]];
     } else if (k === 'all') {
-      if (t > .1 && t < .9) o.tel = translate('tel_dive1');
-      else if (t >= .9 && t < 2.3) o.tel = translate('tel_dive2');
-      else if (t >= 2.3 && t < 3.6) o.tel = translate('tel_all1');
-      else if (t >= 3.6 && t < 6.2) o.tel = translate('tel_all2');
-      else if (t > 7.0) o.tel = translate('tel_all');
+      if (t > .1 && t < .9) o.tel = translate('tel.dive1');
+      else if (t >= .9 && t < 2.3) o.tel = translate('tel.dive2');
+      else if (t >= 2.3 && t < 3.6) o.tel = translate('tel.all1');
+      else if (t >= 3.6 && t < 6.2) o.tel = translate('tel.all2');
+      else if (t > 7.0) o.tel = translate('tel.all');
       o.wipe = t > 1.45;
       o.kp = t > 2.2 ? 'all' : t > 1.4 ? 'dive' : 'def';
       if (t > 2.0 && t < 2.9) o.bg = [0, ga[0]];
       else if (t > 2.9 && t < 3.8) o.bg = [1, ga[1]];
     } else if (k === 'gaya') {
-      if (t > .3 && t < 1.3) o.tel = translate('tel_gaya1');
-      else if (t >= 1.3 && t < 3.0) o.tel = translate('tel_gaya2');
-      else if (t > 3.4) o.tel = translate('tel_gaya');
+      if (t > .3 && t < 1.3) o.tel = translate('tel.gaya1');
+      else if (t >= 1.3 && t < 3.0) o.tel = translate('tel.gaya2');
+      else if (t > 3.4) o.tel = translate('tel.gaya');
       o.wipe = t > 1.3;
       if (t > .4) o.kp = 'gaya';
       if (t > 3.5 && t < 5.0) o.bg = [1, translate('gayaV')];
@@ -1862,30 +1872,28 @@ function scene(s, t, T) {
         o.bpAt = G1;
       }
     } else if (k === 'enjo') {
-      if (t > .3 && t < 1.4) o.tel = translate('tel_enjo1');
-      else if (t > 3.0 && t < 3.6) o.tel = translate('tel_enjo2');
-      else if (t > 3.9) o.tel = translate('tel_enjo');
+      if (t > .3 && t < 1.4) o.tel = translate('tel.enjo1');
+      else if (t > 3.0 && t < 3.6) o.tel = translate('tel.enjo2');
+      else if (t > 3.9) o.tel = translate('tel.enjo');
       if (t > .4) o.kp = 'enjo';
       if (t > 1.7 && t < 2.7) o.bg = [0, ga[0]];
       else if (t > 2.7 && t < 3.5) o.bg = [1, ga[1]];
     } else if (k === 'kuuki') {
-      if (t > 1.1) o.tel = translate('tel_kuuki');
+      if (t > 1.1) o.tel = translate('tel.kuuki');
       o.wipe = t > 1.2;
       if (t > .3) o.kp = 'seikai';
       if (t > 2.5 && t < 3.6) o.bg = [0, ga[0]];
       else if (t > 3.7 && t < 4.9) o.bg = [1, ga[1]];
     } else if (k === 'bored') {
-      if (t > 1.9 && t < 3.0) o.tel = translate('tel_bored1');
-      else if (t >= 3.0) o.tel = translate('tel_bored2');
+      if (t > 1.9 && t < 3.0) o.tel = translate('tel.bored1');
+      else if (t >= 3.0) o.tel = translate('tel.bored2');
       o.kp = t > 1.6 ? 'bored' : 'wrap';
       if (t > 2.2 && t < 3.4) o.bg = [0, ga[0]];
-    } else if (k === 'fight' && t < 1.0) o.tel = translate('tel_fight');
+    } else if (k === 'fight' && t < 1.0) o.tel = translate('tel.fight');
   }
   if (o.bg && !o.bg[1]) o.bg = null;
-  {
-    const hb = ty === 'out' && (((k === 'dive' || k === 'all') && t < .66) || (k === 'all' && t >= 3.05));
-    for (const m of BOOMV) m.visible = !hb;
-  }
+  const hb = ty === 'out' && (((k === 'dive' || k === 'all') && t < .66) || (k === 'all' && t >= 3.05));
+  for (const m of BOOMV) m.visible = !hb;
   resetCrew();
   let skip = 0;
   if (ty === 'out' && k === 'gaya' && t >= .15) skip |= 2;
@@ -1895,11 +1903,9 @@ function scene(s, t, T) {
   }
   gayaPose(T, skip);
   if (ty === 'out') extras(k, t, T, o);
-  {
-    let fv = Math.abs(cam.position.x) < 1.3 && cam.position.z > 1.3;
-    if (ty === 'out' && (k === 'gaya' || k === 'all' || (k === 'kuuki' && t >= 2.3))) fv = false;
-    G1.g.visible = G2.g.visible = !fv;
-  }
+  let fv = Math.abs(cam.position.x) < 1.3 && cam.position.z > 1.3;
+  if (ty === 'out' && (k === 'gaya' || k === 'all' || (k === 'kuuki' && t >= 2.3))) fv = false;
+  G1.g.visible = G2.g.visible = !fv;
   setKanpe(o.kp);
   return o;
 }
@@ -1949,7 +1955,7 @@ function meDive(t) {
   if (t < 1.4) {
     const r = (t - .6) / .8;
     ME.g.position.copy(arcPos(V3(0, 2.95, .55), V3(0, 4.3, -.6), V3(0, .5, -1.75), r));
-    ME.g.rotation.x = -lerp(.9, 2.75, r);
+    ME.g.rotation.x = -THREE.MathUtils.lerp(.9, 2.75, r);
     ME.aL.rotation.x = 2.95;
     ME.aR.rotation.x = 2.95;
     ME.aL.rotation.z = .1;
@@ -1961,7 +1967,7 @@ function meDive(t) {
     ME.aR.rotation.x = 2.9;
   } else if (t < 2.05) {
     const r = smoothstep((t - 1.85) / .2);
-    ME.g.position.set(0, lerp(.4, 1.7, r), -1.75);
+    ME.g.position.set(0, THREE.MathUtils.lerp(.4, 1.7, r), -1.75);
     ME.g.rotation.x = -2.9 * (1 - r);
     ME.aL.rotation.z = 2.6;
     ME.aR.rotation.z = -2.6;
@@ -1984,7 +1990,7 @@ function manJump(m, u, x0, z0, to, peak) {
     const r = u / .75, a = V3(x0, FEET + HIP, z0), b = V3(to[0], .5, to[1]);
     m.g.position.copy(arcPos(a, V3((a.x + b.x) / 2, peak, (a.z + b.z) / 2), b, r));
     m.g.rotation.y = Math.atan2(-(b.x - a.x), -(b.z - a.z));
-    m.g.rotation.x = -lerp(.2, 1.5, r);
+    m.g.rotation.x = -THREE.MathUtils.lerp(.2, 1.5, r);
     m.aL.rotation.z = 2.7;
     m.aR.rotation.z = -2.7;
     m.lL.rotation.x = .5;
@@ -2008,7 +2014,7 @@ function crewJump(q, u, to) {
   if (u < .75) {
     const r = u / .75;
     g.position.copy(arcPos(a, V3((a.x + b.x) / 2, 2.3, (a.z + b.z) / 2), b, r));
-    g.rotation.set(lerp(.1, .9, r), Math.atan2(b.x - a.x, b.z - a.z), 0);
+    g.rotation.set(THREE.MathUtils.lerp(.1, .9, r), Math.atan2(b.x - a.x, b.z - a.z), 0);
     q.c.arms.forEach(x => x.rotation.set(2.8, 0, 0));
   } else {
     const w = u - .75;
@@ -2025,7 +2031,7 @@ function extras(k, t, T, o) {
     rest(m);
     if (u < .5) {
       const r = u / .5;
-      stand(m, lerp(x0, 1.0, r), lerp(z0, .2, r));
+      stand(m, THREE.MathUtils.lerp(x0, 1.0, r), THREE.MathUtils.lerp(z0, .2, r));
       m.g.rotation.y = Math.atan2(-(1.0 - x0), -(.2 - z0));
       m.g.rotation.x = -.4 * r;
       flail(m, u, 1.2);
@@ -2033,7 +2039,7 @@ function extras(k, t, T, o) {
       const r = (u - .5) / .55;
       m.g.position.copy(arcPos(V3(1.0, FEET + HIP, .2), V3(.95, FEET + HIP + .45, -.5), V3(.85, .5, -1.2), r));
       m.g.rotation.y = Math.atan2(.15, 1.4);
-      m.g.rotation.x = -lerp(.4, 1.55, r);
+      m.g.rotation.x = -THREE.MathUtils.lerp(.4, 1.55, r);
       flail(m, u, 1.4);
       m.mouth.scale.set(.06, .05, .012);
     } else if (u < 1.4) {
@@ -2106,7 +2112,7 @@ function scene0(s, t, T) {
       signHolder: AD
     });
     setCam(V3(...shot.camera), V3(...shot.target));
-    o.bm = translate('fightAngry');
+    o.bm = translate('gaya').angry;
     o.angry = true;
     return o;
   }
@@ -2133,7 +2139,7 @@ function scene0(s, t, T) {
     if (t < 1.0) setCam(introCurve.points[0], V3(0, 1.5, -.3), false);
     else if (t < 2.7) {
       const k = smoothstep((t - 1) / 1.7);
-      setCam(introCurve.getPoint(k), V3(0, lerp(1.5, FP[1].y, k), lerp(-.3, FP[1].z, k)), false);
+      setCam(introCurve.getPoint(k), V3(0, THREE.MathUtils.lerp(1.5, FP[1].y, k), THREE.MathUtils.lerp(-.3, FP[1].z, k)), false);
     }
     else setCam(FP[0], FP[1]);
     if (!CIV && t < 2.4) {
@@ -2167,8 +2173,7 @@ function scene0(s, t, T) {
       }
       talkM(MAN, T, t > .12 && t < .7);
     } else if (CIV) {
-      const q = t + 1.2,
-        p = q % 3.8;
+      const q = t + 1.2, p = q % 3.8;
       if (p < 1.2) civLook(MAN, envelope(p, 0, 1.2, .25, .3), Math.floor(q / 3.8) % 2 ? 1 : -1);
     } else if (s.n === 3) wiggle(MAN, T * 1.9);
     else {
@@ -2178,7 +2183,7 @@ function scene0(s, t, T) {
     }
     o.bm = Ln(s.n);
     if (type === 'wait' && s.press != null) {
-      const k = clamp(s.press, 0, 1);
+      const k = THREE.MathUtils.clamp(s.press, 0, 1);
       hands.visible = k > 0;
       hands.position.z = -.12 * k;
     }
@@ -2273,13 +2278,13 @@ function scene0(s, t, T) {
     const u = t - .12;
     if (t < 2.3) {
       const d = smoothstep(phase(t, .6, 2.3));
-      setCam(V3(lerp(3.7, .3, d), lerp(2.4, 2.6, d), lerp(-.55, -2.2, d)), V3(0, lerp(1.2, 1.3, d), lerp(-1.0, -5.0, d)), true);
+      setCam(V3(THREE.MathUtils.lerp(3.7, .3, d), THREE.MathUtils.lerp(2.4, 2.6, d), THREE.MathUtils.lerp(-.55, -2.2, d)), V3(0, THREE.MathUtils.lerp(1.2, 1.3, d), THREE.MathUtils.lerp(-1.0, -5.0, d)), true);
     } else setCam(V3(.3, 2.6, -2.2), V3(0, 1.3, -5.0), true);
     const P0 = tipHip(.75, TOE), Wp = V3(0, .85, -1.45), Lp = V3(0, 1.0, -5.05), YC = Math.atan2(-.3, -2.8);
     if (u < .8) {
-      const r = clamp((u - .42) / .38, 0, 1);
+      const r = THREE.MathUtils.clamp((u - .42) / .38, 0, 1);
       MAN.g.position.copy(arcPos(P0, V3(0, P0.y + .3, (P0.z + Wp.z) / 2), Wp, r));
-      MAN.g.rotation.x = -lerp(.75, 1.6, r);
+      MAN.g.rotation.x = -THREE.MathUtils.lerp(.75, 1.6, r);
       flail(MAN, u, 1.3);
     } else if (u < 1.5) {
       const r = (u - .8) / .7;
@@ -2325,7 +2330,7 @@ function scene0(s, t, T) {
     if (t < .62) {
       const r = phase(t, 0, .45);
       cam.up.set(0, 1, 0);
-      setCam(V3(0, lerp(2.85, 2.55, r) + Math.abs(Math.sin(t * 22)) * .05, lerp(2.3, 1.0, r)), V3(0, lerp(1.45, 1.6, r), -1.4));
+      setCam(V3(0, THREE.MathUtils.lerp(2.85, 2.55, r) + Math.abs(Math.sin(t * 22)) * .05, THREE.MathUtils.lerp(2.3, 1.0, r)), V3(0, THREE.MathUtils.lerp(1.45, 1.6, r), -1.4));
       hands.visible = true;
       hands.position.z = t > .3 ? -.3 * phase(t, .3, .45) : 0;
     } else if (t < 3.6) {
@@ -2379,7 +2384,7 @@ function scene0(s, t, T) {
       const q = (1 - r) * (1 - r),
         a = 2 * (1 - r) * r,
         b = r * r;
-      setCam(V3(0, q * 2.85 + a * 4.0 + b * 3.6, q * 2.3 + a * 1.2 + b * -.3), V3(0, lerp(1.45, .85, r), lerp(-1.55, -1.8, r)));
+      setCam(V3(0, q * 2.85 + a * 4.0 + b * 3.6, q * 2.3 + a * 1.2 + b * -.3), V3(0, THREE.MathUtils.lerp(1.45, .85, r), THREE.MathUtils.lerp(-1.55, -1.8, r)));
     } else if (k === 'dive') {
       if (t < 3.4) {
         const d = phase(t, .6, 3.4);
@@ -2390,7 +2395,7 @@ function scene0(s, t, T) {
       setCam(V3(4.2 - d * .4, 2.7, -.5), V3(0, 1.45, -.9), true);
     } else if (t < 6.1) {
       const d = smoothstep(phase(t, 2.1, 3.0));
-      setCam(V3(lerp(3.8, 4.6, d), lerp(2.7, 3.5, d), lerp(-.5, .8, d)), V3(0, lerp(1.45, 1.0, d), lerp(-.9, -1.4, d)), true);
+      setCam(V3(THREE.MathUtils.lerp(3.8, 4.6, d), THREE.MathUtils.lerp(2.7, 3.5, d), THREE.MathUtils.lerp(-.5, .8, d)), V3(0, THREE.MathUtils.lerp(1.45, 1.0, d), THREE.MathUtils.lerp(-.9, -1.4, d)), true);
     } else setCam(V3(4.2, 3.0, 1.4), V3(0, 1.1, -1.2), true);
     if (t >= .6) {
       ME.g.visible = true;
@@ -2456,13 +2461,12 @@ function scene0(s, t, T) {
         MAN.aR.rotation.x = 2.6;
         MAN.aR.rotation.z = -.3;
       }
-    }
-    else {
+    } else {
       const u = t - 6.25;
       if (u < .7) {
         const r = u / .7;
         MAN.g.position.copy(arcPos(V3(0, FEET + HIP, MZ), V3(0, 3.2, -.1), V3(0, .5, -.6), r));
-        MAN.g.rotation.x = -lerp(.2, 2.6, r);
+        MAN.g.rotation.x = -THREE.MathUtils.lerp(.2, 2.6, r);
         MAN.aL.rotation.z = 2.8;
         MAN.aR.rotation.z = -2.8;
       } else if (u < 1.05) {
@@ -2496,7 +2500,7 @@ function scene0(s, t, T) {
       MAN.mouth.scale.set(.05, .05, .012);
     } else {
       const q = t - 2.3;
-      MAN.g.rotation.y = lerp(-.5, Math.PI, smoothstep(q / .35));
+      MAN.g.rotation.y = THREE.MathUtils.lerp(-.5, Math.PI, smoothstep(q / .35));
       MAN.aR.rotation.z = -1.2;
       MAN.aR.rotation.x = .9 + Math.sin(q * 9) * .25;
       MAN.eR.rotation.x = .4;
@@ -2543,7 +2547,7 @@ function scene0(s, t, T) {
         o.bm = translate('civHot');
         o.angry = true;
       }
-      o.dark = clamp((t - 2.7) * .8, 0, .65);
+      o.dark = THREE.MathUtils.clamp((t - 2.7) * .8, 0, .65);
     } else {
       const q = t - 3.6;
       dressME('suit');
@@ -2613,7 +2617,7 @@ function scene0(s, t, T) {
       MAN.g.position.y -= .03;
       talkM(MAN, T, t > 1.25 && t < 2.3);
       o.bm = translate('bored');
-      o.dark = clamp((t - 1.6) * .5, 0, .45);
+      o.dark = THREE.MathUtils.clamp((t - 1.6) * .5, 0, .45);
     }
     return o;
   }
@@ -2632,8 +2636,8 @@ function setSeg(s) {
 // 一般の方は5回に1回くらい（はじめての1回目は必ず芸人。5回続けて出なければ次は出る）
 function pickCiv() {
   if (window.__civ != null) return !!window.__civ;
-  const plays = ls.get('plays', 0);
-  const since = ls.get('since', 0);
+  const plays = store.get('plays', 0);
+  const since = store.get('since', 0);
   if (plays < 1) return false;
   return since >= 5 || Math.random() < .2;
 }
@@ -2645,8 +2649,8 @@ function startGame() {
   clearFx();
   const civ = pickCiv();
   setLook(civ);
-  ls.set('plays', ls.get('plays', 0) + 1);
-  ls.set('since', civ ? 0 : ls.get('since', 0) + 1);
+  store.set('plays', store.get('plays', 0) + 1);
+  store.set('since', civ ? 0 : store.get('since', 0) + 1);
   murSet(civ ? .1 : .17);
   $('bubG').hidden = true;
   $('telop').hidden = true;
@@ -2658,7 +2662,7 @@ function startGame() {
 
   $('hud').hidden = false;
   $('btnArea').hidden = false;
-  $('fightBtn').hidden = false;
+  fb.hidden = false;
   $('skipBtn').hidden = false;
   resetCrew();
   resetBtns();
@@ -2706,33 +2710,20 @@ const canAct = () => mode === 'play' && G && G.seg && G.seg.type === 'wait';
 function endWith(kind, extra) {
   extra = extra || {};
   G.kind = kind;
-  G.log.push({
-    type: 'out',
-    kind,
-    side: extra.side
-  });
-  setSeg({
-    type: 'out',
-    kind,
-    say: G.say,
-    ...extra
-  });
+  G.log.push({ type: 'out', kind, side: extra.side });
+  setSeg({ type: 'out', kind, say: G.say, ...extra });
   $('btnArea').hidden = true;
+  fb.hidden = true;
   $('skipBtn').hidden = true;
 }
 
 function doNo() {
   if (!canAct()) return;
-  G.log.push({
-    type: 'wait',
-    n: G.say,
-    act: 'no'
-  });
+  G.log.push({ type: 'wait', n: G.say, act: 'no' });
   SFX.pop();
-  const pb = $('pushBtn'), nb = $('noBtn');
   pb.classList.add('gone');
-  nb.classList.add('morph');
-  nb.textContent = translate('push');
+  nbB.classList.add('morph');
+  nbB.textContent = translate('push');
   setTimeout(resetBtns, 300);
   if (G.say >= 10) {
     endWith(CIV ? 'kuuki' : 'bored');
@@ -2745,15 +2736,8 @@ function doNo() {
   }
   G.say++;
   updCnt(true);
-  G.log.push({
-    type: 'line',
-    n: G.say
-  });
-  setSeg({
-    type: 'line',
-    n: G.say,
-    say: G.say
-  });
+  G.log.push({ type: 'line', n: G.say });
+  setSeg({ type: 'line', n: G.say, say: G.say });
 }
 // 振り返っている間に押したら不意打ち（3回目と一般の方はなし）
 function glSide() {
@@ -2777,14 +2761,7 @@ function doPush(ms) {
     } else kind = n <= 2 ? 'early' : 'late';
   }
   G.hold = ms;
-  G.log.push({
-    type: 'wait',
-    n,
-    act: 'push',
-    hold: ms,
-    fui: kind === 'fui',
-    side: extra.side
-  });
+  G.log.push({ type: 'wait', n, act: 'push', hold: ms, fui: kind === 'fui', side: extra.side });
   if (kind === 'clear') extra.mash = { n: 0, done: false };
   endWith(kind, extra);
 }
@@ -2801,7 +2778,7 @@ function doFight() {
   G.kind = 'fight'
   G.seg = {kind: 'fight', type: 'fight', say: G.say };
   G.t = 0;
-  $('fightBtn').hidden = true;
+  fb.hidden = true;
   $('btnArea').hidden = true;
   $('skipBtn').hidden = true;
   $('bubP').hidden = $('bubG').hidden = true;
@@ -2826,27 +2803,25 @@ function maxOff() {
 }
 
 function placeBtn() {
-  $('pushBtn').style.transform = 'translateX(' + off + 'px)';
-  $('noBtn').style.transform = 'translateX(' + offN + 'px)';
+  pb.style.transform = 'translateX(' + off + 'px)';
+  nbB.style.transform = 'translateX(' + offN + 'px)';
 }
 
 function resetBtns() {
   off = 0;
   offN = 0;
-  const pb = $('pushBtn'), nb = $('noBtn'), fb = $('fightBtn');
   pb.classList.remove('gone', 'down', 'jig');
-  nb.classList.remove('morph', 'down');
-  fb.classList.remove('morph', 'down');
+  nbB.classList.remove('morph', 'down');
   pb.textContent = translate('push');
-  nb.textContent = translate('no');
-  fb.textContent = translate('fightButton');
+  nbB.textContent = translate('no');
+  fb.textContent = translate('fight');
   $('gayaBtn').textContent = translate('gayaBtn');
   pb.style.transition = '';
-  nb.style.transition = '';
+  nbB.style.transition = '';
   fb.style.transition = '';
   placeBtn();
 }
-const pb = $('pushBtn'), nbB = $('noBtn');
+const pb = $('pushBtn'), nbB = $('noBtn'), fb = $('fightBtn');
 
 function dragStart(el, which, e) {
   if (G && G.down) return;
@@ -2889,8 +2864,8 @@ function dragMove(e) {
   }
   if (d.drag) {
     const m = maxOff();
-    let n = clamp(d.o + dx, -m, m);
-    if (d.which === 'n') n = off >= 0 ? clamp(n, -m, 0) : clamp(n, 0, m);
+    let n = THREE.MathUtils.clamp(d.o + dx, -m, m);
+    if (d.which === 'n') n = off >= 0 ? THREE.MathUtils.clamp(n, -m, 0) : THREE.MathUtils.clamp(n, 0, m);
     const cur = d.which === 'p' ? off : offN;
     if (Math.abs(n - cur) > 18) SFX.slide();
     if (d.which === 'p') off = n;
@@ -2929,11 +2904,9 @@ $('gayaBtn').addEventListener('click', e => {
   if (Math.abs(offN) < 46 || Math.abs(off) < 46) return;
   doGaya();
 });
-$('fightBtn').addEventListener('click', doFight);
+fb.addEventListener('click', doFight);
 $('skipBtn').onclick = () => {
-  if (mode === 'play' && G.seg.type === 'intro') {
-    waitSeg();
-  }
+  if (mode === 'play' && G.seg.type === 'intro') waitSeg();
 };
 document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
 document.addEventListener('gesturestart', e => e.preventDefault());
@@ -2968,7 +2941,7 @@ function bubAt(el, txt, pos, cls) {
 
 // w,h：吹き出しの大きさ。x0,y0：しっぽの先。いちばん重ならない置き場所をえらぶ（前と同じ置き場所を少しひいきして、ちらつかないようにする）
 function placeBub(w, h, x0, y0, obs, W, H, prev) {
-  const cx = x => clamp(x, w / 2 + 8, W - w / 2 - 8), cy = y => clamp(y, h + 70, H - 150);
+  const cx = x => THREE.MathUtils.clamp(x, w / 2 + 8, W - w / 2 - 8), cy = y => THREE.MathUtils.clamp(y, h + 70, H - 150);
   const cand = [[0, 0]];
   if (prev && (prev[0] || prev[1])) cand.push(prev);
   for (let k = 1; k <= 4; k++) {
@@ -3145,6 +3118,7 @@ function showResult() {
   mode = 'result';
   murSet(.07);
   $('hud').hidden = true;
+  fb.hidden = true;
   $('btnArea').hidden = true;
   $('bubM').hidden = $('bubP').hidden = $('bubG').hidden = true;
   $('telop').hidden = true;
@@ -3154,7 +3128,7 @@ function showResult() {
   $('flash').style.opacity = 0;
   const k = G.kind, id = KT[k];
   G.n = G.introPush ? 0 : (k === 'bored' || k === 'kuuki') ? 10 : sayAtEnd();
-  $('rHead').textContent = translate('head_' + k);
+  $('rHead').textContent = translate('head.' + k);
   $('rTitle').className = 'g' + TIER[id];
   $('rTitle').innerHTML = '「' + esc(tName(id)) + '」';
   $('rLine').textContent = resLine(k, G.n);
